@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <meta charset="ISO-8859-1">
+        <title>Main Page</title>
+
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                $.ajax({
+                    url: 'https://api.rss2json.com/v1/api.json',
+                    method: 'GET',
+                    dataType: 'json',
+                    data: {
+                        rss_url: 'http://feeds.reuters.com/reuters/INtopNews',
+                        api_key: '7sxt4rfanfmzpyftokgioitbho2q5nt9nrlk1ooz', // put your api key here
+                        count: 5
+                    }
+                }).done(function (response) {
+                    if(response.status != 'ok'){ throw response.message; }
+                    console.log('====== ' + response.feed.title + ' ======');
+                    initialize(response);
+                });
+            });
+        </script>
+
+
+        <script type="text/javascript">
+
+            function rightside(ops) {
+                var container = document.getElementById("info");
+                var linebreak = document.createElement("br")
+                while (container.firstChild){
+                    container.removeChild(container.firstChild);
+                }
+                var title = document.createElement("H4");
+                var description = document.createElement("p");
+                title.appendChild(document.createTextNode(ops.title));
+                description.appendChild(document.createTextNode(ops.description.substr(0, ops.description.indexOf('<div class'))));
+                container.style.cssText ='border-style:double;';
+                container.appendChild(title);
+                container.appendChild(linebreak);
+                container.appendChild(description);
+            }
+
+            function initialize(response) {
+                var container = document.getElementById("feed");
+
+                for(var k in response.items){
+
+                    var div = document.createElement("a");
+                    var linebreak = document.createElement("br");
+                    var item = response.items[k];
+                    div.appendChild(document.createTextNode(item.title));
+                    var title = item.title;
+                    div.onclick = (function(opt) {
+                        return function() {
+                            rightside(opt);
+                        };
+                    })(response.items[k]);
+                    container.appendChild(div);
+                    container.appendChild(linebreak);
+                }
+
+            }
+        </script>
+        <link rel="stylesheet" href="css/lib/bootstrap.min.css"/>
+        <link rel="stylesheet" href="css/app/style.css"/>
+    </head>
+    <body ng-app="demo">
+        <div class="split left">
+            <div class="centered">
+                <h2>RSS Feeds Demonstration</h2>
+                <div id="feed"></div>
+                <!-- NPR Business RSS URL - http://www.npr.org/rss/rss.php?id=1006 -->
+            </div>
+        </div>
+
+        <div class="split right">
+            <div class="centered">
+                <div id="info"></div>
+            </div>
+        </div>
+
+    </body>
+    <script src="js/lib/angular.min.js"></script>
+    <script src="js/lib/ui-bootstrap-tpls-2.5.0.min.js"></script>
+    <script src="js/app/app.js"></script>
+
+</html>
